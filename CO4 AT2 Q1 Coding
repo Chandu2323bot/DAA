@@ -1,0 +1,140 @@
+import sys
+
+# ---------------- KRUSKAL ALGORITHM ----------------
+
+class Graph:
+    def __init__(self, vertices):
+        self.V = vertices
+        self.edges = []
+
+    def add_edge(self, u, v, cost):
+        self.edges.append([u, v, cost])
+
+    def find(self, parent, i):
+        if parent[i] != i:
+            parent[i] = self.find(parent, parent[i])
+        return parent[i]
+
+    def union(self, parent, rank, x, y):
+        xroot = self.find(parent, x)
+        yroot = self.find(parent, y)
+
+        if rank[xroot] < rank[yroot]:
+            parent[xroot] = yroot
+        elif rank[xroot] > rank[yroot]:
+            parent[yroot] = xroot
+        else:
+            parent[yroot] = xroot
+            rank[xroot] += 1
+
+    def kruskal(self):
+        print("\n--- Kruskal's Algorithm ---")
+
+        result = []
+        self.edges.sort(key=lambda x: x[2])
+
+        parent = [i for i in range(self.V)]
+        rank = [0] * self.V
+
+        count = 0
+        index = 0
+        total = 0
+
+        while count < self.V - 1:
+            u, v, cost = self.edges[index]
+            index += 1
+
+            x = self.find(parent, u)
+            y = self.find(parent, v)
+
+            if x != y:
+                result.append((u, v, cost))
+                self.union(parent, rank, x, y)
+                count += 1
+                total += cost
+
+        for u, v, cost in result:
+            print(f"Route {u} - {v} : Cost = {cost}")
+
+        print("Minimum Transportation Cost =", total)
+
+
+# ---------------- PRIM ALGORITHM ----------------
+
+def prim(graph):
+
+    print("\n--- Prim's Algorithm ---")
+
+    V = len(graph)
+    selected = [False] * V
+
+    selected[0] = True
+    total = 0
+
+    print("Selected Routes:")
+
+    for _ in range(V - 1):
+
+        minimum = sys.maxsize
+        x = 0
+        y = 0
+
+        for i in range(V):
+            if selected[i]:
+                for j in range(V):
+                    if not selected[j] and graph[i][j]:
+
+                        if graph[i][j] < minimum:
+                            minimum = graph[i][j]
+                            x = i
+                            y = j
+
+        print(f"Route {x} - {y} : Cost = {graph[x][y]}")
+
+        total += graph[x][y]
+        selected[y] = True
+
+    print("Minimum Transportation Cost =", total)
+
+
+# ---------------- MAIN PROGRAM ----------------
+
+# Locations:
+# 0 = A, 1 = B, 2 = C, 3 = D
+
+g = Graph(4)
+
+g.add_edge(0, 1, 4)  # A-B
+g.add_edge(0, 2, 2)  # A-C
+g.add_edge(1, 2, 1)  # B-C
+g.add_edge(1, 3, 5)  # B-D
+g.add_edge(2, 3, 8)  # C-D
+
+
+# Run Kruskal
+g.kruskal()
+
+
+# Graph representation for Prim
+matrix = [
+    [0, 4, 2, 0],
+    [4, 0, 1, 5],
+    [2, 1, 0, 8],
+    [0, 5, 8, 0]
+]
+
+# Run Prim
+prim(matrix)
+Output:
+--- Kruskal's Algorithm ---
+Route 1 - 2 : Cost = 1
+Route 0 - 2 : Cost = 2
+Route 1 - 3 : Cost = 5
+Minimum Transportation Cost = 8
+
+--- Prim's Algorithm ---
+Selected Routes:
+Route 0 - 2 : Cost = 2
+Route 2 - 1 : Cost = 1
+Route 1 - 3 : Cost = 5
+Minimum Transportation Cost = 8
